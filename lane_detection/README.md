@@ -1,7 +1,6 @@
 # Lane Detection System
 
 ![Demo GIF](demo.gif)  
-*Replace the above with the actual path to your GIF.*
 
 ## Overview
 This project implements a toy **Lane Assistant** using **MATLAB**, designed to analyze preprocess video images taken from onboard cameras, detect lanes and alert the driver if it is getting close to the lane.
