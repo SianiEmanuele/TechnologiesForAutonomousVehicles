@@ -1,0 +1,25 @@
+function alert_driver(of,nf)
+%ALERT_DRIVER Summary of this function goes here
+%   Detailed explanation goes here
+of = double(of);
+nf = double(nf);
+h,w = size(of);
+center = int(h/2);
+
+of_vert_prof = sum(of, 1);
+nf_vert_prof = sum(nf, 1);
+
+[of_peaks, of_peaks_locs] = findpeaks(of_vert_prof);
+[nf_peaks, nf_peaks_locs] = findpeaks(nf_vert_prof);
+
+% take the 4 max of each
+[of_peaks, of_peaks_i] = maxk(of_peaks, 4);
+of_peaks_locs = of_peaks_locs(of_peaks_i);
+
+[nf_peaks, of_peaks_i] = maxk(nf_peaks, 4);
+nf_peaks_locs = nf_peaks_locs(nf_peaks_i);
+
+new_dist = 
+
+end
+
