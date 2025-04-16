@@ -54,7 +54,7 @@ drawing_spec = mp_drawing.DrawingSpec(thickness=1, circle_radius=1)
 ###########################################
 ############ Global variables #############
 ###########################################
-SLEEPY = False
+DROWSY = False
 DISTRACTED = False
 OPEN_THRESHOLD_CALIBRATED = False
 CLOSED_THRESHOLD_CALIBRATED = False
@@ -239,8 +239,8 @@ while cap.isOpened():
                 EAR_R = (EAR_R - CLOSED_THRESHOLD_R) / (OPEN_THRESHOLD_R - CLOSED_THRESHOLD_R)
                 EAR_L = (EAR_L - CLOSED_THRESHOLD_L) / (OPEN_THRESHOLD_L - CLOSED_THRESHOLD_L)
                 
-                # Alarm if the EAR is smaller than 0.8 for more than 10 seconds
-                if EAR_R < 0.8 and EAR_L < 0.8:
+                # Alarm if the EAR is greater than 0.8 for more than 10 seconds, meaning the driver did not blink for a long time
+                if EAR_R > 0.8 and EAR_L > 0.8:
                     t_EAR.start() if not t_EAR.is_running() else None
                 else:
                     # reset when eyes are open
@@ -248,7 +248,7 @@ while cap.isOpened():
                     t_EAR.reset()
 
                 if t_EAR.elapsed() > 10000:
-                    SLEEPY = True
+                    DROWSY = True
                     t_EAR.stop()
                     t_EAR.reset()
                 
@@ -301,10 +301,10 @@ while cap.isOpened():
 
                 # Display the values on the image
                 if OPEN_THRESHOLD_CALIBRATED and CLOSED_THRESHOLD_CALIBRATED:
-                    if not SLEEPY:
+                    if not DROWSY:
                         cv2.putText(image, "Awake", (0, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
                     else:
-                        cv2.putText(image, "SLEEPY", (0, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+                        cv2.putText(image, "DROWSY", (0, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
                     
                     if DEBUG:
                         # Debug information
