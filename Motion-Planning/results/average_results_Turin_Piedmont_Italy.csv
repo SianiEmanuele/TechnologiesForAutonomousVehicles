@@ -1,0 +1,6 @@
+place_name, distance, dijkstra_steps, dijkstra_weight, a_star_steps, a_star_weight
+Turin, Piedmont, Italy,463.53028558220814,6755.0,526.9158222439374,767.3,531.4487623368784
+place_name, distance, dijkstra_steps, dijkstra_weight, a_star_steps, a_star_weight
+Turin, Piedmont, Italy,378.159645203025,4529.9,409.02680300052907,290.6,414.3783246370646
+place_name, distance, dijkstra_steps, dijkstra_weight, a_star_steps, a_star_weight
+Turin, Piedmont, Italy,524.9279173250463,7074.0,551.2792428215665,948.2,556.0189237058146

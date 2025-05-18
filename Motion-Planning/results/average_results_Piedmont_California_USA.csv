@@ -1,0 +1,6 @@
+place_name, distance, dijkstra_steps, dijkstra_weight, a_star_steps, a_star_weight
+Piedmont, California, USA,98.24556891083218,138.4,168.87150196534722,73.3,168.87150196534722
+place_name, distance, dijkstra_steps, dijkstra_weight, a_star_steps, a_star_weight
+Piedmont, California, USA,102.7982064543958,170.0,167.68681373215816,73.0,167.68681373215816
+place_name, distance, dijkstra_steps, dijkstra_weight, a_star_steps, a_star_weight
+Piedmont, California, USA,107.74632783666496,182.9,189.25648511203647,100.1,189.25648511203647
