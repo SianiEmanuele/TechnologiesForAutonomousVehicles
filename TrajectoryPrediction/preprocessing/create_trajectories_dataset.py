@@ -190,10 +190,6 @@ def create_dataframe(instances_annotations: dict, output_dir: str):
         heading = []    
 
         timestamps = []
-        rot_q0 = []
-        rot_q1 = []
-        rot_q2 = []
-        rot_q3 = []
         
         
         
