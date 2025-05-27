@@ -30,7 +30,7 @@ if __name__ == "__main__":
     print(f'Test instances: {test_size}')
 
     # Shuffle the instance tokens and split them into train, val and test sets
-    np.random.seed(77) if 'trainval' in version else np.random.seed(33)
+    np.random.seed(77) if 'trainval' in version else np.random.seed(44)
     np.random.shuffle(instance_tokens)
     train_instance_tokens = instance_tokens[:train_size]
     val_instance_tokens = instance_tokens[train_size:train_size + val_size]

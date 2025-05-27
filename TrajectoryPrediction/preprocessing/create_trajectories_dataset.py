@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-def extract_trajectory(annotations: list, plot=True):
+def extract_trajectory(annotations: list, plot=True, limit=None):
     """
     Extracts the trajectory of an instance in the ego vehicle's frame of reference.
     
@@ -54,6 +54,9 @@ def extract_trajectory(annotations: list, plot=True):
 
     # Plot
     if plot:
+        if limit is not None:
+            x_rel = x_rel[:limit]
+            y_rel = y_rel[:limit]
         plt.plot(x_rel, y_rel, label="Trajectory in ego's frame", color='blue')
         plt.scatter(x_rel[0], y_rel[0], color='green', label='Inizio')
         plt.scatter(x_rel[-1], y_rel[-1], color='orange', label='Fine')
@@ -171,6 +174,8 @@ def get_all_annotations(trucksc, instances: list):
 def create_dataframe(instances_annotations: dict, output_dir: str):
     # dataset = pd.DataFrame(columns=['instance_token', 'category_name', 'x_rel', 'y_rel', 'rot_q0', 'rot_q1', 'rot_q2', 'rot_q3' , 'timestamp'])
     dataset = pd.DataFrame(columns=['instance_token', 'category_name', 'x_rel', 'y_rel', 'speed', 'heading', 'timestamp'])
+    max_x = 100
+    max_y = 10
     num_instances = len(instances_annotations)
     for i, (instance_token, annotations) in enumerate(instances_annotations.items()):
         # log every 100 instances
@@ -184,45 +189,87 @@ def create_dataframe(instances_annotations: dict, output_dir: str):
 
         trajectories = extract_trajectory(annotations, plot=False)
         x_rel, y_rel = trajectories
+        # # Ensure the trajectory is within the specified limits in terms of absolute values
+        # max_abs_x = max(abs(x) for x in x_rel)
+        # max_abs_y = max(abs(y) for y in y_rel)
+        # if max_abs_x > max_x or max_abs_y > max_y:
+        #     continue       
+
+        # Keep only portions of the trajectory up until the limits are reached, then discard the following points
+        first_exceeding_x_index = next((i for i, x in enumerate(x_rel) if abs(x) > max_x), len(x_rel))
+        first_exceeding_y_index = next((i for i, y in enumerate(y_rel) if abs(y) > max_y), len(y_rel))
+        limit_index = min(first_exceeding_x_index, first_exceeding_y_index)
+        x_valid = x_rel[:limit_index]
+        y_valid = y_rel[:limit_index]
+        if len(x_valid) <=16:
+            continue   
+                
         v_x = []
         v_y = []
         speed = []
         heading = []    
-
         timestamps = []
-        
-        
-        
-        for annotation in annotations:
+
+        speed.append(0)  # Initialize with zero speed
+        heading.append(0)  # Initialize with zero heading
+
+        for i in range(len(x_valid)):
+            # Get the sample token for the annotation
+            annotation = annotations[i]
             sample_token = annotation['sample_token']
             sample = trucksc.get('sample', sample_token)
             timestamps.append(sample['timestamp'])
-        #     rot_q0.append(annotation['rotation'][0])
-        #     rot_q1.append(annotation['rotation'][1])
-        #     rot_q2.append(annotation['rotation'][2])
-        #     rot_q3.append(annotation['rotation'][3])
 
-        # Calculate the velocity
-        speed.append(0)
-        heading.append(0)  # Initialize with zero heading
-        for j in range(len(x_rel) - 1):
-            delta_t = timestamps[j + 1] - timestamps[j]
-            if delta_t > 0:
-                v_x = (x_rel[j + 1] - x_rel[j]) / delta_t
-                v_y = (y_rel[j + 1] - y_rel[j]) / delta_t
-                speed.append(np.sqrt(v_x**2 + v_y**2))
-                heading.append(np.arctan2(v_y, v_x))
+            # Calculate the speed and heading
+            if i > 0:
+                delta_t = timestamps[i] - timestamps[i - 1]
+                if delta_t > 0:
+                    v_x.append((x_valid[i] - x_valid[i - 1]) / delta_t)
+                    v_y.append((y_valid[i] - y_valid[i - 1]) / delta_t)
+                    speed.append(np.sqrt(v_x[-1]**2 + v_y[-1]**2))
+                    heading.append(np.arctan2(v_y[-1], v_x[-1]))
+                else:
+                    v_x.append(0)
+                    v_y.append(0)
+                    speed.append(speed[-1])
+                    heading.append(heading[-1])
             else:
-                speed.append(0)
-                heading.append(heading[-1] if j > 0 else 0)  # Maintain previous heading if delta_t is zero
+                v_x.append(0)
+                v_y.append(0)
+
+
+        
+
+        # for annotation in annotations:
+        #     sample_token = annotation['sample_token']
+        #     sample = trucksc.get('sample', sample_token)
+        #     timestamps.append(sample['timestamp'])
+        # #     rot_q0.append(annotation['rotation'][0])
+        # #     rot_q1.append(annotation['rotation'][1])
+        # #     rot_q2.append(annotation['rotation'][2])
+        # #     rot_q3.append(annotation['rotation'][3])
+
+        # # Calculate the velocity
+        # speed.append(0)
+        # heading.append(0)  # Initialize with zero heading
+        # for j in range(len(x_rel) - 1):
+        #     delta_t = timestamps[j + 1] - timestamps[j]
+        #     if delta_t > 0:
+        #         v_x = (x_rel[j + 1] - x_rel[j]) / delta_t
+        #         v_y = (y_rel[j + 1] - y_rel[j]) / delta_t
+        #         speed.append(np.sqrt(v_x**2 + v_y**2))
+        #         heading.append(np.arctan2(v_y, v_x))
+        #     else:
+        #         speed.append(0)
+        #         heading.append(heading[-1] if j > 0 else 0)  # Maintain previous heading if delta_t is zero
         
             
         # Create a dataframe for the instance
         instance_df = pd.DataFrame({
-            'instance_token': [instance_token] * len(x_rel),
-            'category_name': [category_name] * len(x_rel),
-            'x_rel': x_rel,
-            'y_rel': y_rel,
+            'instance_token': [instance_token] * len(x_valid),
+            'category_name': [category_name] * len(x_valid),
+            'x_rel': x_valid,
+            'y_rel': y_valid,
             'speed': speed,
             'heading': heading,
             'timestamp': timestamps
@@ -230,6 +277,8 @@ def create_dataframe(instances_annotations: dict, output_dir: str):
 
         # Append the instance dataframe to the main dataframe
         dataset = pd.concat([dataset, instance_df], ignore_index=True)
+
+    print(f"Processed: {len(dataset['instance_token'].unique())} instances that have trajectories within the specified limits.")
 
     # Map category names to integers
     category_mapping = {name: idx for idx, name in enumerate(dataset['category_name'].unique())}
@@ -253,6 +302,8 @@ def create_dataframe(instances_annotations: dict, output_dir: str):
     dataset.to_csv(os.path.join(output_dir, 'trajectories_dataset.csv'), index=False)
     print(f"Dataset saved to {os.path.join(output_dir, 'trajectories_dataset.csv')}")
 
+    return dataset
+
 
 if __name__ == "__main__":
     cwd = os.getcwd()
@@ -275,16 +326,13 @@ if __name__ == "__main__":
     # create dir
     if not os.path.exists(save_path):
         os.makedirs(save_path)
-    create_dataframe(instances_annotations, save_path)
+    dataset = create_dataframe(instances_annotations, save_path)
 
     # plot some trajectories
-    for i, (instance_token, annotations) in enumerate(instances_annotations.items()):
-        if i < 5:  # Plot only the first 5 instances
-            print(f"Plotting trajectory for instance {instance_token}")
-            extract_trajectory(annotations, plot=True)
-        else:
-            break
-
+    for i in range(len(dataset)):
+        instance_token = dataset['instance_token'].unique()[i]
+        annotations = instances_annotations[instance_token]
+        extract_trajectory(annotations, plot=True, limit=len(dataset[dataset['instance_token'] == instance_token]))
     
     
             
