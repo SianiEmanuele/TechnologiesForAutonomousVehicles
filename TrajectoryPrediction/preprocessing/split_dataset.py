@@ -30,7 +30,7 @@ if __name__ == "__main__":
     print(f'Test instances: {test_size}')
 
     # Shuffle the instance tokens and split them into train, val and test sets
-    np.random.seed(77) if 'trainval' in version else np.random.seed(137)
+    np.random.seed(77) if 'trainval' in version else np.random.seed(33)
     np.random.shuffle(instance_tokens)
     train_instance_tokens = instance_tokens[:train_size]
     val_instance_tokens = instance_tokens[train_size:train_size + val_size]
@@ -125,8 +125,9 @@ if __name__ == "__main__":
     train_category_counts = dict()
     train_category_counts[0] = len(train_df[train_df['category_0'] == 1])
     train_category_counts[1] = len(train_df[train_df['category_1'] == 1])
-    train_category_counts[2] = len(train_df[train_df['category_2'] == 1])
-    print("category percentage in training data:", train_category_counts[0] / len(train_df), train_category_counts[1] / len(train_df), train_category_counts[2] / len(train_df))
+    # train_category_counts[2] = len(train_df[train_df['category_2'] == 1])
+    # print("category percentage in training data:", train_category_counts[0] / len(train_df), train_category_counts[1] / len(train_df), train_category_counts[2] / len(train_df))
+    print("category percentage in training data:", train_category_counts[0] / len(train_df), train_category_counts[1] / len(train_df))
     # plot the histogram
     plt.bar(train_category_counts.keys(), train_category_counts.values())
     plt.title('Training data category distribution')
@@ -139,8 +140,9 @@ if __name__ == "__main__":
     val_category_counts = dict()
     val_category_counts[0] = len(val_df[val_df['category_0'] == 1])
     val_category_counts[1] = len(val_df[val_df['category_1'] == 1])
-    val_category_counts[2] = len(val_df[val_df['category_2'] == 1])
-    print("category percentage in validation data:", val_category_counts[0] / len(val_df), val_category_counts[1] / len(val_df), val_category_counts[2] / len(val_df))
+    # val_category_counts[2] = len(val_df[val_df['category_2'] == 1])
+    # print("category percentage in validation data:", val_category_counts[0] / len(val_df), val_category_counts[1] / len(val_df), val_category_counts[2] / len(val_df))
+    print("category percentage in validation data:", val_category_counts[0] / len(val_df), val_category_counts[1] / len(val_df))
     # plot the histogram
     plt.bar(val_category_counts.keys(), val_category_counts.values())
     plt.title('Validation data category distribution')
@@ -152,8 +154,9 @@ if __name__ == "__main__":
     test_category_counts = dict()
     test_category_counts[0] = len(test_df[test_df['category_0'] == 1])
     test_category_counts[1] = len(test_df[test_df['category_1'] == 1])
-    test_category_counts[2] = len(test_df[test_df['category_2'] == 1])
-    print("category percentage in test data:", test_category_counts[0] / len(test_df), test_category_counts[1] / len(test_df), test_category_counts[2] / len(test_df))
+    # test_category_counts[2] = len(test_df[test_df['category_2'] == 1])
+    # print("category percentage in test data:", test_category_counts[0] / len(test_df), test_category_counts[1] / len(test_df), test_category_counts[2] / len(test_df))
+    print("category percentage in test data:", test_category_counts[0] / len(test_df), test_category_counts[1] / len(test_df))
     # plot the histogram
     plt.bar(test_category_counts.keys(), test_category_counts.values())
     plt.title('Test data category distribution')

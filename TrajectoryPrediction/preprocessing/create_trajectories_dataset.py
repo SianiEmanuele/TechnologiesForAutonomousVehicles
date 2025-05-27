@@ -125,7 +125,7 @@ def get_selected_vehicles(trucksc):
     Returns:
     - all_instances: list of all instances (humans and vehicles).
     """
-    accepted_categories = ['vehicle.car', 'vehicle.truck', 'vehicle.motorcycle', 'vehicle.bus']
+    accepted_categories = ['vehicle.car', 'vehicle.truck', 'vehicle.bus']
     vehicles = []
     for instance in trucksc.instance:
         category_token = instance['category_token']
