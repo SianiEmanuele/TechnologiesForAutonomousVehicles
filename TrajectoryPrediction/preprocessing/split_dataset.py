@@ -7,7 +7,7 @@ import pandas as pd
 
 if __name__ == "__main__":
     cwd = os.getcwd()
-    version = 'v1.0-trainval'
+    version = 'v1.0-mini'
     raw_dataset_path = os.path.join(cwd,f'TrajectoryPrediction', 'processed_data', version, 'trajectories_dataset.csv')
 
     # Load the dataset
@@ -30,7 +30,7 @@ if __name__ == "__main__":
     print(f'Test instances: {test_size}')
 
     # Shuffle the instance tokens and split them into train, val and test sets
-    np.random.seed(77)
+    np.random.seed(77) if 'trainval' in version else np.random.seed(137)
     np.random.shuffle(instance_tokens)
     train_instance_tokens = instance_tokens[:train_size]
     val_instance_tokens = instance_tokens[train_size:train_size + val_size]
@@ -57,21 +57,25 @@ if __name__ == "__main__":
     # normalize train data
     train_x_mean, train_x_std = train_df['x_rel'].mean(), train_df['x_rel'].std()
     train_y_mean, train_y_std = train_df['y_rel'].mean(), train_df['y_rel'].std()
-    train_rot_q0_mean, train_rot_q0_std = train_df['rot_q0'].mean(), train_df['rot_q0'].std()
-    train_rot_q1_mean, train_rot_q1_std = train_df['rot_q1'].mean(), train_df['rot_q1'].std()
-    train_rot_q2_mean, train_rot_q2_std = train_df['rot_q2'].mean(), train_df['rot_q2'].std()
-    train_rot_q3_mean, train_rot_q3_std = train_df['rot_q3'].mean(), train_df['rot_q3'].std()
-    train_v_x_mean, train_v_x_std = train_df['v_x'].mean(), train_df['v_y'].std()
-    train_v_y_mean, train_v_y_std = train_df['v_x'].mean(), train_df['v_y'].std()
+    # train_rot_q0_mean, train_rot_q0_std = train_df['rot_q0'].mean(), train_df['rot_q0'].std()
+    # train_rot_q1_mean, train_rot_q1_std = train_df['rot_q1'].mean(), train_df['rot_q1'].std()
+    # train_rot_q2_mean, train_rot_q2_std = train_df['rot_q2'].mean(), train_df['rot_q2'].std()
+    # train_rot_q3_mean, train_rot_q3_std = train_df['rot_q3'].mean(), train_df['rot_q3'].std()
+    # train_v_x_mean, train_v_x_std = train_df['v_x'].mean(), train_df['v_y'].std()
+    # train_v_y_mean, train_v_y_std = train_df['v_x'].mean(), train_df['v_y'].std()
+    train_speed_mean, train_speed_std = train_df['speed'].mean(), train_df['speed'].std()
+    train_heading_mean, train_heading_std = train_df['heading'].mean(), train_df['heading'].std()
 
     train_df['x_rel'] = (train_df['x_rel'] - train_x_mean) / train_x_std
     train_df['y_rel'] = (train_df['y_rel'] - train_y_mean) / train_y_std
-    train_df['rot_q0'] = (train_df['rot_q0'] - train_rot_q0_mean) / train_rot_q0_std
-    train_df['rot_q1'] = (train_df['rot_q1'] - train_rot_q1_mean) / train_rot_q1_std
-    train_df['rot_q2'] = (train_df['rot_q2'] - train_rot_q2_mean) / train_rot_q2_std
-    train_df['rot_q3'] = (train_df['rot_q3'] - train_rot_q3_mean) / train_rot_q3_std
-    train_df['v_x'] = (train_df['v_x'] - train_v_x_mean) / train_v_x_std
-    train_df['v_y'] = (train_df['v_y'] - train_v_y_mean) / train_v_y_std
+    # train_df['rot_q0'] = (train_df['rot_q0'] - train_rot_q0_mean) / train_rot_q0_std
+    # train_df['rot_q1'] = (train_df['rot_q1'] - train_rot_q1_mean) / train_rot_q1_std
+    # train_df['rot_q2'] = (train_df['rot_q2'] - train_rot_q2_mean) / train_rot_q2_std
+    # train_df['rot_q3'] = (train_df['rot_q3'] - train_rot_q3_mean) / train_rot_q3_std
+    # train_df['v_x'] = (train_df['v_x'] - train_v_x_mean) / train_v_x_std
+    # train_df['v_y'] = (train_df['v_y'] - train_v_y_mean) / train_v_y_std
+    train_df['speed'] = (train_df['speed'] - train_speed_mean) / train_speed_std
+    train_df['heading'] = (train_df['heading'] - train_heading_mean) / train_heading_std
 
 
     # describe the train data
@@ -81,21 +85,25 @@ if __name__ == "__main__":
     # normalize val data
     val_x_mean, val_x_std = val_df['x_rel'].mean(), val_df['x_rel'].std()
     val_y_mean, val_y_std = val_df['y_rel'].mean(), val_df['y_rel'].std()
-    val_rot_q0_mean, val_rot_q0_std = val_df['rot_q0'].mean(), val_df['rot_q0'].std()
-    val_rot_q1_mean, val_rot_q1_std = val_df['rot_q1'].mean(), val_df['rot_q1'].std()
-    val_rot_q2_mean, val_rot_q2_std = val_df['rot_q2'].mean(), val_df['rot_q2'].std()
-    val_rot_q3_mean, val_rot_q3_std = val_df['rot_q3'].mean(), val_df['rot_q3'].std()
-    val_v_x_mean, val_v_x_std = val_df['v_x'].mean(), val_df['v_x'].std()
-    val_v_y_mean, val_v_y_std = val_df['v_y'].mean(), val_df['v_y'].std()
+    # val_rot_q0_mean, val_rot_q0_std = val_df['rot_q0'].mean(), val_df['rot_q0'].std()
+    # val_rot_q1_mean, val_rot_q1_std = val_df['rot_q1'].mean(), val_df['rot_q1'].std()
+    # val_rot_q2_mean, val_rot_q2_std = val_df['rot_q2'].mean(), val_df['rot_q2'].std()
+    # val_rot_q3_mean, val_rot_q3_std = val_df['rot_q3'].mean(), val_df['rot_q3'].std()
+    # val_v_x_mean, val_v_x_std = val_df['v_x'].mean(), val_df['v_x'].std()
+    # val_v_y_mean, val_v_y_std = val_df['v_y'].mean(), val_df['v_y'].std()
+    val_speed_mean, val_speed_std = val_df['speed'].mean(), val_df['speed'].std()
+    val_heading_mean, val_heading_std = val_df['heading'].mean(), val_df['heading'].std()
 
     val_df['x_rel'] = (val_df['x_rel'] - val_x_mean) / val_x_std
     val_df['y_rel'] = (val_df['y_rel'] - val_y_mean) / val_y_std
-    val_df['rot_q0'] = (val_df['rot_q0'] - val_rot_q0_mean) / val_rot_q0_std
-    val_df['rot_q1'] = (val_df['rot_q1'] - val_rot_q1_mean) / val_rot_q1_std
-    val_df['rot_q2'] = (val_df['rot_q2'] - val_rot_q2_mean) / val_rot_q2_std
-    val_df['rot_q3'] = (val_df['rot_q3'] - val_rot_q3_mean) / val_rot_q3_std
-    val_df['v_x'] = (val_df['v_x'] - val_v_x_mean) / val_v_x_std
-    val_df['v_y'] = (val_df['v_y'] - val_v_y_mean) / val_v_y_std
+    # val_df['rot_q0'] = (val_df['rot_q0'] - val_rot_q0_mean) / val_rot_q0_std
+    # val_df['rot_q1'] = (val_df['rot_q1'] - val_rot_q1_mean) / val_rot_q1_std
+    # val_df['rot_q2'] = (val_df['rot_q2'] - val_rot_q2_mean) / val_rot_q2_std
+    # val_df['rot_q3'] = (val_df['rot_q3'] - val_rot_q3_mean) / val_rot_q3_std
+    # val_df['v_x'] = (val_df['v_x'] - val_v_x_mean) / val_v_x_std
+    # val_df['v_y'] = (val_df['v_y'] - val_v_y_mean) / val_v_y_std
+    val_df['speed'] = (val_df['speed'] - val_speed_mean) / val_speed_std
+    val_df['heading'] = (val_df['heading'] - val_heading_mean) / val_heading_std
 
 
     # describe the val data

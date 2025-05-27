@@ -169,7 +169,8 @@ def get_all_annotations(trucksc, instances: list):
     return annotations
 
 def create_dataframe(instances_annotations: dict, output_dir: str):
-    dataset = pd.DataFrame(columns=['instance_token', 'category_name', 'x_rel', 'y_rel', 'rot_q0', 'rot_q1', 'rot_q2', 'rot_q3' , 'timestamp'])
+    # dataset = pd.DataFrame(columns=['instance_token', 'category_name', 'x_rel', 'y_rel', 'rot_q0', 'rot_q1', 'rot_q2', 'rot_q3' , 'timestamp'])
+    dataset = pd.DataFrame(columns=['instance_token', 'category_name', 'x_rel', 'y_rel', 'speed', 'heading', 'timestamp'])
     num_instances = len(instances_annotations)
     for i, (instance_token, annotations) in enumerate(instances_annotations.items()):
         # log every 100 instances
@@ -185,7 +186,9 @@ def create_dataframe(instances_annotations: dict, output_dir: str):
         x_rel, y_rel = trajectories
         v_x = []
         v_y = []
-        
+        speed = []
+        heading = []    
+
         timestamps = []
         rot_q0 = []
         rot_q1 = []
@@ -193,26 +196,29 @@ def create_dataframe(instances_annotations: dict, output_dir: str):
         rot_q3 = []
         
         
+        
         for annotation in annotations:
             sample_token = annotation['sample_token']
             sample = trucksc.get('sample', sample_token)
             timestamps.append(sample['timestamp'])
-            rot_q0.append(annotation['rotation'][0])
-            rot_q1.append(annotation['rotation'][1])
-            rot_q2.append(annotation['rotation'][2])
-            rot_q3.append(annotation['rotation'][3])
+        #     rot_q0.append(annotation['rotation'][0])
+        #     rot_q1.append(annotation['rotation'][1])
+        #     rot_q2.append(annotation['rotation'][2])
+        #     rot_q3.append(annotation['rotation'][3])
 
         # Calculate the velocity
-        v_x.append(0)
-        v_y.append(0)
+        speed.append(0)
+        heading.append(0)  # Initialize with zero heading
         for j in range(len(x_rel) - 1):
             delta_t = timestamps[j + 1] - timestamps[j]
             if delta_t > 0:
-                v_x.append((x_rel[j + 1] - x_rel[j]) / delta_t)
-                v_y.append((y_rel[j + 1] - y_rel[j]) / delta_t)
+                v_x = (x_rel[j + 1] - x_rel[j]) / delta_t
+                v_y = (y_rel[j + 1] - y_rel[j]) / delta_t
+                speed.append(np.sqrt(v_x**2 + v_y**2))
+                heading.append(np.arctan2(v_y, v_x))
             else:
-                v_x.append(0)
-                v_y.append(0)
+                speed.append(0)
+                heading.append(heading[-1] if j > 0 else 0)  # Maintain previous heading if delta_t is zero
         
             
         # Create a dataframe for the instance
@@ -221,12 +227,8 @@ def create_dataframe(instances_annotations: dict, output_dir: str):
             'category_name': [category_name] * len(x_rel),
             'x_rel': x_rel,
             'y_rel': y_rel,
-            'v_x': v_x,
-            'v_y': v_y,
-            'rot_q0': rot_q0,
-            'rot_q1': rot_q1,
-            'rot_q2': rot_q2,
-            'rot_q3': rot_q3,
+            'speed': speed,
+            'heading': heading,
             'timestamp': timestamps
         })
 
@@ -259,7 +261,7 @@ def create_dataframe(instances_annotations: dict, output_dir: str):
 if __name__ == "__main__":
     cwd = os.getcwd()
     dataset_path  = os.path.join(cwd, 'TrajectoryPrediction/data/man-truckscenes' )
-    version = 'v1.0-trainval'
+    version = 'v1.0-mini'
     trucksc = TruckScenes(version, dataset_path, True)
 
     # Extract all different instances
